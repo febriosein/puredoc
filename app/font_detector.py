@@ -1,6 +1,14 @@
 import os
-import winreg
+import sys
 from typing import Set, Dict, Any, List
+
+if sys.platform == "win32":
+    try:
+        import winreg
+    except ImportError:
+        winreg = None
+else:
+    winreg = None
 
 _SYSTEM_FONTS_CACHE: Set[str] = set()
 
@@ -15,7 +23,8 @@ FONT_EQUIVALENTS = {
 
 def get_installed_fonts() -> Set[str]:
     """
-    Scans Windows font registry (HKLM and HKCU) and returns a set of lowercase font family names.
+    Scans system font registry (Windows) or font directories (Linux/macOS)
+    and returns a set of lowercase font family names.
     Caches results for subsequent calls.
     """
     global _SYSTEM_FONTS_CACHE
@@ -23,30 +32,41 @@ def get_installed_fonts() -> Set[str]:
         return _SYSTEM_FONTS_CACHE
 
     fonts = set()
-    roots = [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]
-    subkeys = [
-        r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts",
-        r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts",
-    ]
 
-    for root in roots:
-        for subkey in subkeys:
-            try:
-                with winreg.OpenKey(root, subkey) as key:
-                    i = 0
-                    while True:
-                        try:
-                            name, val, _ = winreg.EnumValue(key, i)
-                            clean_name = name.split(" (")[0].strip()
-                            for part in clean_name.split("&"):
-                                p = part.strip().lower()
-                                if p:
-                                    fonts.add(p)
-                            i += 1
-                        except OSError:
-                            break
-            except Exception:
-                continue
+    if winreg is not None and sys.platform == "win32":
+        roots = [winreg.HKEY_LOCAL_MACHINE, winreg.HKEY_CURRENT_USER]
+        subkeys = [
+            r"SOFTWARE\Microsoft\Windows NT\CurrentVersion\Fonts",
+            r"SOFTWARE\Microsoft\Windows\CurrentVersion\Fonts",
+        ]
+
+        for root in roots:
+            for subkey in subkeys:
+                try:
+                    with winreg.OpenKey(root, subkey) as key:
+                        i = 0
+                        while True:
+                            try:
+                                name, val, _ = winreg.EnumValue(key, i)
+                                clean_name = name.split(" (")[0].strip()
+                                for part in clean_name.split("&"):
+                                    p = part.strip().lower()
+                                    if p:
+                                        fonts.add(p)
+                                i += 1
+                            except OSError:
+                                break
+                except Exception:
+                    continue
+    else:
+        # Linux / container fallback: scan font directories if present
+        linux_dirs = ["/usr/share/fonts", "/usr/local/share/fonts", os.path.expanduser("~/.fonts")]
+        for d in linux_dirs:
+            if os.path.exists(d):
+                for root_dir, _, files in os.walk(d):
+                    for f in files:
+                        base = os.path.splitext(f)[0].lower()
+                        fonts.add(base)
 
     # Also add standard universally available Windows fonts
     standard_windows_fonts = {
