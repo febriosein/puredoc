@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PureDoc PDF - Konverter Word ke PDF Tanpa Kompresi Gambar</title>
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-content">
+      <div class="logo-group">
+        <div class="logo-icon">P</div>
+        <div class="logo-text">
+          <h1>PureDoc PDF</h1>
+          <p>Kualitas Gambar Asli 100% • Tata Letak Identik</p>
+        </div>
+      </div>
+      <div class="system-badge">
+        <span class="dot"></span>
+        <span>Mesin Word Native Aktif</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <div class="container">
+      
+      <!-- Upload Section -->
+      <section id="uploadSection">
+        <div class="hero">
+          <h2>Kualitas gambar tetap HD, tata letak tetap sama.</h2>
+          <p>Solusi konversi dokumen Word ke PDF khusus untuk skripsi, laporan, katalog, dan portofolio. Tidak ada downsampling atau kompresi gambar ulang.</p>
+        </div>
+
+        <div class="card">
+          <div class="upload-dropzone" id="dropzone">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <div class="upload-title">Tarik & lepas file Word (.docx) di sini</div>
+            <div class="upload-subtitle">atau klik tombol di bawah untuk memilih file (maksimal 100 MB)</div>
+            <input type="file" id="fileInput" accept=".docx" style="display: none;">
+            <button type="button" class="btn btn-primary btn-lg" id="uploadBtn">Pilih File Word (.docx)</button>
+          </div>
+
+          <div class="upload-guarantee">
+            <div class="guarantee-item">
+              <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Pass-through Gambar Asli</span>
+            </div>
+            <div class="guarantee-item">
+              <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Font Di-embed Penuh</span>
+            </div>
+            <div class="guarantee-item">
+              <svg fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
+              <span>Hapus Otomatis (1 Jam)</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pre-conversion Analysis Section -->
+      <section id="analysisSection" style="display: none;">
+        <div class="card">
+          <div class="analysis-header">
+            <div class="doc-info">
+              <span class="doc-badge">DOCX</span>
+              <div>
+                <div class="doc-name" id="analysisDocName">laporan.docx</div>
+                <div class="doc-size" id="analysisDocSize">4.2 MB</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="banner-summary" id="analysisSummaryMsg">
+            12 gambar ditemukan. Seluruh resolusi asli akan dipertahankan.
+          </div>
+
+          <div class="grid-stats">
+            <div class="stat-box">
+              <div class="label">Gambar Ditemukan</div>
+              <div class="value" id="statImagesCount">0</div>
+              <div class="subtext">Resolusi asli 1:1</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Resolusi Terkecil</div>
+              <div class="value" id="statMinRes">-</div>
+              <div class="subtext">Tanpa downsampling</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Resolusi Tertinggi</div>
+              <div class="value" id="statMaxRes">-</div>
+              <div class="subtext">Maksimal HD</div>
+            </div>
+            <div class="stat-box">
+              <div class="label">Font Terdeteksi</div>
+              <div class="value" id="statFontsCount">0 Font</div>
+              <div class="subtext">Diperiksa pada sistem</div>
+            </div>
+          </div>
+
+          <div class="warning-box" id="fontWarningBox" style="display: none;">
+            <h4>Peringatan Font Dokumen</h4>
+            <ul id="fontWarningList" style="margin-left: 20px; margin-top: 6px;"></ul>
+          </div>
+
+          <div style="font-size: 13px; color: var(--text-muted); margin-bottom: 24px;">
+            <strong>Elemen Dokumen:</strong> <span id="statComplexElems">-</span>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <button type="button" class="btn btn-primary btn-lg" id="convertBtn" style="flex: 1;">
+              Konversi ke PDF (Kualitas Asli)
+            </button>
+            <button type="button" class="btn btn-secondary btn-lg" id="cancelBtn">
+              Ganti File
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Progress Section -->
+      <section id="progressSection" style="display: none;">
+        <div class="card progress-card">
+          <div class="spinner"></div>
+          <h3 id="progressLabel" style="font-size: 18px; font-weight: 700; margin-bottom: 8px;">Memproses Dokumen...</h3>
+          <p style="font-size: 14px; color: var(--text-muted);">Mesin Word sedang merender tata letak dan memverifikasi kualitas gambar asli.</p>
+
+          <div class="progress-steps">
+            <div class="step-item done" id="step1">
+              <span>✓</span> <span>1. Menganalisis</span>
+            </div>
+            <div class="step-item active" id="step2">
+              <span>●</span> <span>2. Merender Tata Letak</span>
+            </div>
+            <div class="step-item" id="step3">
+              <span>○</span> <span>3. Verifikasi & Restorasi HD</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Result Section -->
+      <section id="resultSection" style="display: none;">
+        <div class="result-layout">
+          
+          <!-- Left: PDF Preview -->
+          <div class="pdf-preview-pane">
+            <div class="preview-toolbar">
+              <span>Pratinjau PDF Hasil Konversi</span>
+              <span style="font-size: 12px; color: var(--text-muted);">Tampilan Nyata di Browser</span>
+            </div>
+            <iframe id="pdfIframe" class="preview-iframe" title="PDF Preview"></iframe>
+          </div>
+
+          <!-- Right: Quality Report & Actions -->
+          <div class="report-pane">
+            <div class="status-badge-card" id="statusBadgeCard">
+              <div>
+                <div class="status-title" id="statusTitle">Status: Lolos</div>
+                <div class="status-desc" id="statusDesc">Seluruh gambar beresolusi asli, layout dan halaman identik.</div>
+              </div>
+            </div>
+
+            <!-- Quality Table (PRD Section 13) -->
+            <div class="table-wrapper">
+              <table class="quality-table">
+                <thead>
+                  <tr>
+                    <th>Item Pengujian</th>
+                    <th>Word (Asli)</th>
+                    <th>PDF (Hasil)</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody id="qualityTableBody">
+                  <!-- Populated by JS -->
+                </tbody>
+              </table>
+            </div>
+
+            <div class="action-bar">
+              <a href="#" id="downloadPdfBtn" class="btn btn-primary btn-lg" style="width: 100%;">
+                <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+                Unduh PDF (Kualitas Asli)
+              </a>
+
+              <div class="action-row">
+                <button type="button" class="btn btn-secondary" id="downloadReportBtn">
+                  Unduh Laporan JSON
+                </button>
+                <button type="button" class="btn btn-secondary" id="newDocBtn">
+                  Konversi Dokumen Lain
+                </button>
+              </div>
+
+              <button type="button" class="btn btn-danger" id="deleteBtn" style="margin-top: 6px;">
+                Hapus Sekarang dari Server (Privasi)
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      PureDoc PDF • Konverter Word ke PDF Tanpa Kompresi Gambar & Tata Letak Identik • Sesuai PRD v1.0
+    </div>
+  </footer>
+
+  <script src="/static/js/app.js"></script>
+</body>
+</html>
